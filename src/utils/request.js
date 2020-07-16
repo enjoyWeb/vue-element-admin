@@ -2,6 +2,12 @@ import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
+import { formatUrl } from '@/utils/index'
+
+const base = {
+  accessKey: 'yugan_admin',
+  secretKey: 'lrq_xse!dsfaew'
+}
 
 // create an axios instance
 const service = axios.create({
@@ -13,6 +19,9 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
+    if (config.url) {
+      config.url = formatUrl(config.url, base)
+    }
     // do something before request is sent
 
     if (store.getters.token) {
@@ -45,8 +54,8 @@ service.interceptors.response.use(
   response => {
     const res = response.data
 
-    // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 20000) {
+    // if the custom code is not 200, it is judged as an error.
+    if (res.code !== 200) {
       Message({
         message: res.message || 'Error',
         type: 'error',

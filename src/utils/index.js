@@ -1,3 +1,7 @@
+import {
+  sha256
+} from 'js-sha256'
+
 /**
  * Created by PanJiaChen on 16/11/18.
  */
@@ -45,7 +49,9 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
     const value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') {
+      return ['日', '一', '二', '三', '四', '五', '六'][value]
+    }
     return value.toString().padStart(2, '0')
   })
   return time_str
@@ -354,4 +360,27 @@ export function removeClass(ele, cls) {
     const reg = new RegExp('(\\s|^)' + cls + '(\\s|$)')
     ele.className = ele.className.replace(reg, ' ')
   }
+}
+
+/**
+ * 格式化请求URL
+ */
+export const formatUrl = (url, base) => {
+  const timestamp = Math.round(new Date().getTime() / 1000).toString()
+  const {
+    accessKey,
+    secretKey
+  } = base
+  const params = {
+    accessKey,
+    secretKey,
+    timestamp
+  }
+  let str = ''
+  // 忽略了排序
+  for (const i in params) {
+    str += i + params[i]
+  }
+  const sign = sha256(str) // 要加密的密码
+  return `${url}?accessKey=${accessKey}&secretKey=${secretKey}&timestamp=${timestamp}&sign=${sign}`
 }
